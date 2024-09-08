@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""CommandCraft example using SimpleInterpreter."""
+"""CommandCraft example using PromptInterpreter."""
 
 import asyncio
 
-from cmdcraft import SimpleInterpreter
+from cmdcraft import PromptInterpreter
 
 
 async def main():
     """Example main function."""
-    cli = SimpleInterpreter()
+    cli = PromptInterpreter()
     await cli.init()
     await cli.run()
 

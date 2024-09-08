@@ -1,11 +1,6 @@
-#!/usr/bin/env python
-# *****************************************************************************
-# Copyright (c) 2024, Antonio Mario Weinsen Junior <weinsen.mbed@gmail.com>
-# All rights reserved.
-#
-# This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree.
-# *****************************************************************************
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Simple prompt interpreter."""
 
 from __future__ import annotations
 
@@ -23,16 +18,19 @@ class SimpleInterpreter(BaseInterpreter):
     """
 
     def __init__(self, *, stream: any = sys.stdin) -> None:
+        """Construct the interpreter object.
+
+        Args:
+            stream (any, optional): Input stream. Defaults to sys.stdin.
+        """
         super().__init__()
         self._stream = stream
         self._reader: asyncio.StreamReader | None = None
         self._protocol: asyncio.StreamReaderProtocol | None = None
 
-    async def connect(self) -> None:
-        """Connects the Interpreter object to its input stream.
-
-        This method also starts the Interpreter.
-        """
+    async def init(self) -> None:
+        """Init the interpreter object."""
+        await super().init()
         loop = asyncio.get_event_loop()
         self._reader = asyncio.StreamReader()
         self._protocol = asyncio.StreamReaderProtocol(self._reader)
@@ -41,12 +39,16 @@ class SimpleInterpreter(BaseInterpreter):
     async def run(self) -> None:
         """Main Interpreter running loop."""
         self._is_running = True
-        await self.interpret('help')
+        await self.interpret("help")
         while self.is_running:
-            print('\n> ', end='')
+            print("\n> ", end="")
             cmdline = await self._reader.read(256)
             cmdline = cmdline.decode().rstrip()
             if not cmdline:
                 continue
             self._history.append(cmdline)
             await self.interpret(cmdline)
+
+    def output(self, *args) -> None:
+        """Output method."""
+        print(*args)

@@ -12,7 +12,7 @@ from cmdcraft import BaseInterpreter
 from .completer import MethodCompleter
 
 
-class PromptInterpreter(BaseInterpreter):
+class Interpreter(BaseInterpreter):
     """Prompt Interpreter class."""
 
     def __init__(self) -> None:
@@ -35,6 +35,7 @@ class PromptInterpreter(BaseInterpreter):
 
     async def run(self) -> None:
         """Main Interpreter running loop."""
+        await super().run()
         self._is_running = True
         await self.interpret("help")
         while self.is_running:

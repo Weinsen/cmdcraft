@@ -5,14 +5,12 @@
 from __future__ import annotations
 
 from .base import BaseInterpreter
-from .prompt import PromptInterpreter
-from .simple import SimpleInterpreter
+from .interpreter import Interpreter
 
 __version__ = "0.0.1"
 
 __all__ = [
-    "SimpleInterpreter",
     "BaseInterpreter",
-    "PromptInterpreter",
+    "Interpreter",
     "__version__",
 ]

@@ -91,10 +91,8 @@ class Method:
             alias (str | None, optional): Command name. Defaults to None.
         """
         self._cb: callable = cb
-        self._pars: dict[str, dict[str, Parameter]] = {
-            "positional": {},
-            "keyword": {},
-        }
+        self._pars: dict[str, Parameter] = {}
+        self._positional: dict[str, Parameter] = {}
         self._name: str = cb.__name__
         self._alias: str = alias if alias is not None else self.name
 
@@ -134,7 +132,7 @@ class Method:
         Returns:
             dict[str, Parameter]: Parameters.
         """
-        return self._pars["keyword"]
+        return self._pars
 
     def list_parameters(self) -> list[str]:
         """Return a list of parameters.
@@ -142,7 +140,7 @@ class Method:
         Returns:
             list[str]: List of parameters.
         """
-        return (*list(self._pars["positional"]), *list(self._pars["keyword"]))
+        return list(self._pars)
 
     def eval(self, *args) -> asyncio.Future:
         """Evaluate a call.
@@ -154,14 +152,14 @@ class Method:
         kws: list[str] = [x for x in args if "=" in x]
 
         args = []
-        for a, p in zip(pos, self._pars["positional"].values()):
+        for a, p in zip(pos, self._positional.values()):
             args.append(p.cast(a))
 
         kwargs = {}
         for kw in kws:
             [par, value] = kw.split("=")
-            if par in self._pars["keyword"]:
-                kwargs[par] = self._pars["keyword"][par].cast(value)
+            if par in self._pars:
+                kwargs[par] = self._pars[par].cast(value)
 
         return self._cb(*args, **kwargs)
 
@@ -180,6 +178,5 @@ class Method:
             par = Parameter(k, ptype, default)
 
             if v.kind in (v.POSITIONAL_ONLY, v.POSITIONAL_OR_KEYWORD):
-                self._pars["positional"][k] = par
-            else:
-                self._pars["keyword"][k] = par
+                self._positional[k] = par
+            self._pars[k] = par

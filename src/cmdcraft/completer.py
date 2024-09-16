@@ -63,9 +63,9 @@ class MethodCompleter(NestedCompleter):
             Iterable[Completion]: List of Completions for current prompt.
         """
         (par, arg) = prompt.split("=")
-        if par not in self._method._pars["keyword"]:
+        if par not in self._method._pars:
             return ()
-        vs = self._method._pars["keyword"][par].options
+        vs = self._method._pars[par].options
         if vs is None:
             return ()
         completer = FuzzyWordCompleter(vs)

@@ -30,19 +30,22 @@ class BaseInterpreter(metaclass=ABCMeta):
         self.register_command(self.wait)
         self._history = []
         self._is_running: bool = False
+        self._is_init: bool = False
 
     async def init(self) -> None:
         """Init the interpreter object."""
         for c in self._commands.values():
             c.process()
+        self._is_init = True
 
     @abstractmethod
     def output(self, *args) -> None:
         """Output method."""
 
-    @abstractmethod
     async def run(self) -> None:
         """Main Interpreter running loop."""
+        if not self._is_init:
+            await self.init()
 
     @property
     def is_running(self) -> bool:

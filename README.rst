@@ -1,10 +1,19 @@
-Command Craft
-=============
+cmdcraft
+==========================
 
-Make fast prompt apps for your internal tools.
+cmdcraft (or simply ``cmdcraft``) is a library that aims to build fast and stable
+interative devtools. It that native Python metadata from objects to build prompt
+commands, so you don't have to manually configure input options.
 
-.. image:: https://github.com/weinsen/cmdcraft/actions/workflows/test.yml/badge.svg?branch=master
-.. image:: https://github.com/weinsen/cmdcraft/actions/workflows/test.yml/badge.svg?branch=develop
+.. image:: docs/source/images/example.gif
+
+Features
+--------
+
+- Asynchronous and parallel tasks using asyncio
+- Easy function to command interface
+- Out of box functionality
+- Intuitive usability
 
 Special thanks
 ==============

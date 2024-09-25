@@ -31,11 +31,10 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     package_data={"cmdcraft": ["py.typed"]},
-    install_requires=[],
+    install_requires=["prompt_toolkit"],
     python_requires=">=3.8.0",
     extras_require={
-        "prompt": ["prompt_toolkit"],
-        "dev": ["black", "isort", "pylint", "flake8", "flake8-docstrings", "pytest"],
+        "dev": ["ruff", "pytest"],
     },
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",

@@ -14,5 +14,4 @@ if [ -z "${FILES}" ]; then
     exit 0
 fi
 
-flake8 --config .config ${FILES}
-pylint --rcfile .pylintrc ${FILES}
+ruff check ${FILES}

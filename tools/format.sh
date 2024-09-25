@@ -16,5 +16,4 @@ if [ -z "${FILES}" ]; then
     exit 0
 fi
 
-isort ${FILES}
-black ${FILES}
+ruff format ${FILES}

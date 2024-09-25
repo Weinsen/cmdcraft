@@ -108,7 +108,7 @@ class BaseInterpreter(metaclass=ABCMeta):
             self.output(e)
 
     async def help(self, command: str = None) -> None:
-        """ICP Mockup interpreter help.
+        """cmdcraft interpreter help.
 
         The interpreter receives instructions from the standard input (stdin) to
         dynamically execute operations on running services.

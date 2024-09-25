@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""CommandCraft module."""
+"""cmdcraft module."""
 
 from __future__ import annotations
 

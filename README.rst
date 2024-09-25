@@ -1,7 +1,7 @@
 cmdcraft
 ==========================
 
-cmdcraft (or simply ``cmdcraft``) is a library that aims to build fast and stable
+``cmdcraft`` is a library that aims to build fast and stable
 interative devtools. It that native Python metadata from objects to build prompt
 commands, so you don't have to manually configure input options.
 
@@ -14,6 +14,11 @@ Features
 - Easy function to command interface
 - Out of box functionality
 - Intuitive usability
+
+Contributing
+===========
+
+Contributions are welcome! Please start by reading the `Contributing Guidelines <CONTRIBUING.rst>`_ file.
 
 Special thanks
 ==============

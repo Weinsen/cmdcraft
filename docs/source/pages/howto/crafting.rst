@@ -5,13 +5,15 @@ As show in the :ref:`getting_started` session, designing your own application is
 straightforward. In this section it will be further explained how to design commands
 that suite your needs.
 
-Functions and methods
----------------------
-
-cmdcraft supports both free functions and class methods as callables.
+Recommendations
+===============
 
 Typing
 ------
 
-It is highly recommended to use annotations in the callable parameters. This way, the
-prompt will be cast to types.
+It is highly recommended to use annotations in the callable parameters, so the prompt
+arguments can be cast into said types. This will help you control and validate the input
+your user inputs.
+
+Custom types
+------------

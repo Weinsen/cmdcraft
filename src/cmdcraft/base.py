@@ -8,7 +8,7 @@ import shlex
 from abc import ABCMeta, abstractmethod
 from inspect import cleandoc
 
-from .method import Method
+from .command import Command
 
 
 class BaseInterpreter(metaclass=ABCMeta):
@@ -20,7 +20,7 @@ class BaseInterpreter(metaclass=ABCMeta):
 
     def __init__(self) -> None:
         """Command Set initializer."""
-        self._commands: dict[str, Method] = {}
+        self._commands: dict[str, Command] = {}
         self.register_command(self.clear)
         self.register_command(self.help)
         self.register_command(self.history)
@@ -40,7 +40,7 @@ class BaseInterpreter(metaclass=ABCMeta):
 
     @abstractmethod
     def output(self, *args) -> None:
-        """Output method."""
+        """Output command."""
 
     async def run(self) -> None:
         """Main Interpreter running loop."""
@@ -63,7 +63,7 @@ class BaseInterpreter(metaclass=ABCMeta):
             command (callable): Callable.
             alias (str | None, optional): Command alias. Defaults to None.
         """
-        m = Method(command, alias)
+        m = Command(command, alias)
         self._commands[m.alias] = m
 
     @property

@@ -76,15 +76,15 @@ class Parameter:
         return value
 
 
-class Method:
-    """Method wrapper.
+class Command:
+    """Command wrapper.
 
-    This class handles methods / callables to extract information, specially its
+    This class handles commands / callables to extract information, specially its
     parameters.
     """
 
     def __init__(self, cb: callable, alias: str | None = None) -> None:
-        """Construct a Method object.
+        """Construct a Command object.
 
         Args:
             cb (callable): Callable to be wrapped.
@@ -101,7 +101,7 @@ class Method:
         """Return the original callable docstring.
 
         Returns:
-            str: Method docstring.
+            str: Command docstring.
         """
         d = self._cb.__doc__
         fb = ""
@@ -109,19 +109,19 @@ class Method:
 
     @property
     def name(self) -> str:
-        """Return the method name.
+        """Return the command name.
 
         Returns:
-            str: Method name.
+            str: Command name.
         """
         return self._name
 
     @property
     def alias(self) -> str:
-        """Return the method alias.
+        """Return the command alias.
 
         Returns:
-            str: Method alias.
+            str: Command alias.
         """
         return self._alias
 

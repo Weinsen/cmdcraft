@@ -7,8 +7,8 @@ Interpreter
 .. automodule:: cmdcraft.interpreter
     :members:
 
-Method
+Command
 -----------
 
-.. automodule:: cmdcraft.method
+.. automodule:: cmdcraft.command
     :members:

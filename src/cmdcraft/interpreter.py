@@ -9,7 +9,7 @@ from prompt_toolkit.completion import NestedCompleter
 
 from cmdcraft import BaseInterpreter
 
-from .completer import MethodCompleter
+from .completer import CommandCompleter
 
 
 class Interpreter(BaseInterpreter):
@@ -30,7 +30,7 @@ class Interpreter(BaseInterpreter):
         for name, cmd in self._commands.items():
             if name == "help":
                 continue
-            cmds[name] = MethodCompleter(cmd)
+            cmds[name] = CommandCompleter(cmd)
         return NestedCompleter(cmds)
 
     async def run(self) -> None:
@@ -47,5 +47,5 @@ class Interpreter(BaseInterpreter):
             await self.interpret(cmdline)
 
     def output(self, *args) -> None:
-        """Output method."""
+        """Output command."""
         print(*args)

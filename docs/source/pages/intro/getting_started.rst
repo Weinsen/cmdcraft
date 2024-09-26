@@ -23,13 +23,13 @@ Start a new Python file (i.e. ``main.py``) with the following code snippet:
 .. code:: python
 
     import asyncio
-    from cmdcraft import Interpreter
+    from cmdcraft import Prompter
 
     async def test_input(prompt: str) -> None:
         print(f'The input is: {prompt}')
 
     async def main():
-        prompt = Interpreter()
+        prompt = Prompter()
         prompt.register_command(test_input)
         await prompt.run()
 

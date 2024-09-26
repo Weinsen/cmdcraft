@@ -11,8 +11,8 @@ from inspect import cleandoc
 from .command import Command
 
 
-class BaseInterpreter(metaclass=ABCMeta):
-    """Interpreter basic command set.
+class BasePrompter(metaclass=ABCMeta):
+    """Prompter basic command set.
 
     This class offers an operational command set to be embedded into the CLI
     interpreter.
@@ -43,7 +43,7 @@ class BaseInterpreter(metaclass=ABCMeta):
         """Output command."""
 
     async def run(self) -> None:
-        """Main Interpreter running loop."""
+        """Main Prompter running loop."""
         if not self._is_init:
             await self.init()
 
@@ -80,8 +80,12 @@ class BaseInterpreter(metaclass=ABCMeta):
         cmds = ", ".join(list(self._commands))
         self.output(f"Available commands: {cmds}")
 
+    @staticmethod
+    def tokenize(input: str) -> list[str]:
+        return shlex.split(input.rstrip(), comments=True, posix=True)
+
     async def interpret(self, cmdline: str) -> None:
-        """Main Interpreter method for parsing commands.
+        """Main Prompter method for parsing commands.
 
         This method is used to parse input commands, handling eventual failures
         and raised exceptions.
@@ -90,7 +94,9 @@ class BaseInterpreter(metaclass=ABCMeta):
             cmdline (str): Input command as single string line.
         """
         try:
-            args = shlex.split(cmdline, comments=True, posix=True)
+            args = self.tokenize(cmdline)
+            if len(args) < 1:
+                return
             cmd = self._commands.get(args[0], None)
             if args[0] == "help":
                 if len(args) > 1:

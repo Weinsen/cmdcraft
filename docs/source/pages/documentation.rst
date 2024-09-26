@@ -1,7 +1,7 @@
 Documentation
 =============
 
-Interpreter
+Prompter
 -----------
 
 .. automodule:: cmdcraft.interpreter

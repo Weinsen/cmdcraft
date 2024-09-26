@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Prompt Interpreter."""
+"""Prompt Prompter."""
 
 from __future__ import annotations
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import NestedCompleter
 
-from cmdcraft import BaseInterpreter
+from cmdcraft import BasePrompter
 
 from .completer import CommandCompleter
 
 
-class Interpreter(BaseInterpreter):
-    """Prompt Interpreter class."""
+class Prompter(BasePrompter):
+    """Prompt Prompter class."""
 
     def __init__(self) -> None:
         """Construct the interpreter object."""
@@ -34,15 +34,12 @@ class Interpreter(BaseInterpreter):
         return NestedCompleter(cmds)
 
     async def run(self) -> None:
-        """Main Interpreter running loop."""
+        """Main Prompter running loop."""
         await super().run()
         self._is_running = True
         await self.interpret("help")
         while self.is_running:
             cmdline = await self._session.prompt_async("> ", completer=self.completer())
-            cmdline = cmdline.rstrip()
-            if not cmdline:
-                continue
             self._history.append(cmdline)
             await self.interpret(cmdline)
 

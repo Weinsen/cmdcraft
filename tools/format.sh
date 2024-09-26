@@ -8,12 +8,11 @@
 # *****************************************************************************
 
 # Test only new / modified files
-# FILES=$(git diff --name-only --diff-filter=d develop | grep -E "(\.py$)")
-FILES=$(find . -name *.py)
-echo $FILES
+FILES=$(git diff --name-only --diff-filter=d develop | grep -E "(\.py$)")
 
 if [ -z "${FILES}" ]; then
     exit 0
 fi
 
+ruff check ${FILES} --fix
 ruff format ${FILES}

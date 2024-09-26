@@ -84,12 +84,16 @@ class CommandCompleter(NestedCompleter):
         Returns:
             Iterable[Completion]: List of Completions for current prompt.
         """
-        prompt = shlex.split(document.text + "_")
-        if len(prompt) < 1:
-            return ()
-        word = prompt[-1]
-        if word == "_":
+        try:
+            prompt = shlex.split(document.text + "_")
+            if len(prompt) < 1:
+                return ()
+            word = prompt[-1]
+            if word == "_":
+                return self._get_pcompletions(word, document, complete_event)
+            if "=" in word:
+                return self._get_acompletions(word, document, complete_event)
             return self._get_pcompletions(word, document, complete_event)
-        if "=" in word:
-            return self._get_acompletions(word, document, complete_event)
-        return self._get_pcompletions(word, document, complete_event)
+        except ValueError:  # TODO: improve open quote handling
+            return ()
+

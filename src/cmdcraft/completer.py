@@ -96,4 +96,3 @@ class CommandCompleter(NestedCompleter):
             return self._get_pcompletions(word, document, complete_event)
         except ValueError:  # TODO: improve open quote handling
             return ()
-

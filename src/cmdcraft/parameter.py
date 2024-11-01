@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Callable wrapper for info extraction."""
 
 from __future__ import annotations
@@ -15,7 +14,7 @@ class Parameter:
     """
 
     def __init__(
-        self, name: str, ptype: type | None = None, default: any = None
+        self, name: str, ptype: type | None = None, default: any | None = None
     ) -> None:
         """Construct a new Parameter object.
 
@@ -23,10 +22,12 @@ class Parameter:
             name (str): Parameter name.
             ptype (type | None, optional): Parameter type. Defaults to None.
             default (any, optional): Default value. Defaults to None.
+
         """
         self._name = name
         self._type = ptype
         self._default = default
+        self._dyn_opts = None
 
     @property
     def name(self) -> str:
@@ -34,6 +35,7 @@ class Parameter:
 
         Returns:
             str: Parameter name.
+
         """
         return self._name
 
@@ -43,6 +45,7 @@ class Parameter:
 
         Returns:
             any: Default value.
+
         """
         return self._default
 
@@ -52,8 +55,11 @@ class Parameter:
 
         Returns:
             list[str]: List of options.
+
         """
-        if issubclass(self._type, Enum):
+        if self._dyn_opts is not None:
+            return self._dyn_opts()
+        elif issubclass(self._type, Enum):
             return self._type._member_names_
         return []
 
@@ -65,9 +71,22 @@ class Parameter:
 
         Returns:
             any: The cast value.
+
         """
         if issubclass(self._type, Enum):
             return self._type[value]
         if self._type:
             return self._type(value)
         return value
+
+    def set_dynamic_options(self, generator: callable) -> None:
+        """Set dynamic options for the parameter.
+
+        This allows the completer to suggest options based on previous operations, like
+        connected usernames.
+
+        Args:
+            generator (callable): Callable which should return a list of options.
+
+        """
+        self._dyn_opts = generator

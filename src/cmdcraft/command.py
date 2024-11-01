@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Callable wrapper for info extraction."""
 
 from __future__ import annotations
@@ -24,6 +23,7 @@ class Command:
         Args:
             cb (callable): Callable to be wrapped.
             alias (str | None, optional): Command name. Defaults to None.
+
         """
         self._cb: callable = cb
         self._pars: dict[str, Parameter] = {}
@@ -37,6 +37,7 @@ class Command:
 
         Returns:
             str: Command docstring.
+
         """
         d = self._cb.__doc__
         fb = ""
@@ -48,6 +49,7 @@ class Command:
 
         Returns:
             str: Command name.
+
         """
         return self._name
 
@@ -57,6 +59,7 @@ class Command:
 
         Returns:
             str: Command alias.
+
         """
         return self._alias
 
@@ -66,6 +69,7 @@ class Command:
 
         Returns:
             dict[str, Parameter]: Parameters.
+
         """
         return self._pars
 
@@ -74,6 +78,7 @@ class Command:
 
         Returns:
             list[str]: List of parameters.
+
         """
         return list(self._pars)
 
@@ -82,6 +87,7 @@ class Command:
 
         Returns:
             asyncio.Future: A future of this callable.
+
         """
         pos: list[str] = [x for x in args if "=" not in x]
         kws: list[str] = [x for x in args if "=" in x]
@@ -115,3 +121,7 @@ class Command:
             if v.kind in (v.POSITIONAL_ONLY, v.POSITIONAL_OR_KEYWORD):
                 self._positional[k] = par
             self._pars[k] = par
+
+    def parameter(self, parameter: str) -> Parameter | None:
+        """Parameter getter."""
+        return self._pars.get(parameter, None)

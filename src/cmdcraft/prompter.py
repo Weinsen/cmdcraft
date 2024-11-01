@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Prompt Prompter."""
 
 from __future__ import annotations
@@ -34,7 +33,7 @@ class Prompter(BasePrompter):
         return NestedCompleter(cmds)
 
     async def run(self) -> None:
-        """Main Prompter running loop."""
+        """Run Prompter main loop."""
         await super().run()
         self._is_running = True
         await self.interpret("help")

@@ -7,12 +7,5 @@
 # LICENSE file in the root directory of this source tree.
 # *****************************************************************************
 
-# Test only new / modified files
-FILES=$(git diff --name-only --diff-filter=d develop | grep -E "(\.py$)")
-
-if [ -z "${FILES}" ]; then
-    exit 0
-fi
-
-ruff check ${FILES} --fix
-ruff format ${FILES}
+rm -rf docs/build
+sphinx-build -M html docs/source docs/build

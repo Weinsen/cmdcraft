@@ -1,94 +1,29 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Callable wrapper for info extraction."""
 
 from __future__ import annotations
 
 import asyncio
 import inspect
-from enum import Enum
 from typing import get_type_hints
 
-
-class Parameter:
-    """Parameter wrapper.
-
-    This class handles individual parameters to extract information about its
-    annotation type, name and default value.
-    """
-
-    def __init__(
-        self, name: str, ptype: type | None = None, default: any = None
-    ) -> None:
-        """Construct a new Parameter object.
-
-        Args:
-            name (str): Parameter name.
-            ptype (type | None, optional): Parameter type. Defaults to None.
-            default (any, optional): Default value. Defaults to None.
-        """
-        self._name = name
-        self._type = ptype
-        self._default = default
-
-    @property
-    def name(self) -> str:
-        """Return parameter name.
-
-        Returns:
-            str: Parameter name.
-        """
-        return self._name
-
-    @property
-    def default(self) -> any:
-        """Return parameter default value.
-
-        Returns:
-            any: Default value.
-        """
-        return self._default
-
-    @property
-    def options(self) -> list[str]:
-        """Return parameter options.
-
-        Returns:
-            list[str]: List of options.
-        """
-        if issubclass(self._type, Enum):
-            return self._type._member_names_
-        return []
-
-    def cast(self, value: str) -> any:
-        """Cast a value to this parameter type.
-
-        Args:
-            value (str): Value to be cast.
-
-        Returns:
-            any: The cast value.
-        """
-        if issubclass(self._type, Enum):
-            return self._type[value]
-        if self._type:
-            return self._type(value)
-        return value
+from .parameter import Parameter
 
 
-class Method:
-    """Method wrapper.
+class Command:
+    """Command wrapper.
 
-    This class handles methods / callables to extract information, specially its
+    This class handles commands / callables to extract information, specially its
     parameters.
     """
 
     def __init__(self, cb: callable, alias: str | None = None) -> None:
-        """Construct a Method object.
+        """Construct a Command object.
 
         Args:
             cb (callable): Callable to be wrapped.
             alias (str | None, optional): Command name. Defaults to None.
+
         """
         self._cb: callable = cb
         self._pars: dict[str, Parameter] = {}
@@ -101,7 +36,8 @@ class Method:
         """Return the original callable docstring.
 
         Returns:
-            str: Method docstring.
+            str: Command docstring.
+
         """
         d = self._cb.__doc__
         fb = ""
@@ -109,19 +45,21 @@ class Method:
 
     @property
     def name(self) -> str:
-        """Return the method name.
+        """Return the command name.
 
         Returns:
-            str: Method name.
+            str: Command name.
+
         """
         return self._name
 
     @property
     def alias(self) -> str:
-        """Return the method alias.
+        """Return the command alias.
 
         Returns:
-            str: Method alias.
+            str: Command alias.
+
         """
         return self._alias
 
@@ -131,6 +69,7 @@ class Method:
 
         Returns:
             dict[str, Parameter]: Parameters.
+
         """
         return self._pars
 
@@ -139,6 +78,7 @@ class Method:
 
         Returns:
             list[str]: List of parameters.
+
         """
         return list(self._pars)
 
@@ -147,6 +87,7 @@ class Method:
 
         Returns:
             asyncio.Future: A future of this callable.
+
         """
         pos: list[str] = [x for x in args if "=" not in x]
         kws: list[str] = [x for x in args if "=" in x]
@@ -180,3 +121,7 @@ class Method:
             if v.kind in (v.POSITIONAL_ONLY, v.POSITIONAL_OR_KEYWORD):
                 self._positional[k] = par
             self._pars[k] = par
+
+    def parameter(self, parameter: str) -> Parameter | None:
+        """Parameter getter."""
+        return self._pars.get(parameter, None)

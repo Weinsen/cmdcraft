@@ -98,6 +98,8 @@ class BasePrompter(metaclass=ABCMeta):
             #     return
             input = Input(cmdline)
             input.process()
+            if len(input.tokens) < 1:
+                return
             cmd = self._commands.get(input.tokens[0], None)
             if input.tokens[0] == "help":
                 if len(input.tokens) > 1:

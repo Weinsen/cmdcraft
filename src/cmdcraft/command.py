@@ -26,7 +26,7 @@ class Command:
 
         """
         self._cb: callable = cb
-        self._pars: dict[str, Parameter] = {} # Remove later on
+        self._pars: dict[str, Parameter] = {}  # Remove later on
         self._positional: dict[str, Parameter] = {}
         self._keyword: dict[str, Parameter] = {}
         self._name: str = cb.__name__

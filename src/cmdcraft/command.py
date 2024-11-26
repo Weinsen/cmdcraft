@@ -101,8 +101,8 @@ class Command:
             asyncio.Future: A future of this callable.
 
         """
-        pos: list[str] = [x for x in args if "=" not in x]
-        kws: list[str] = [x for x in args if "=" in x]
+        pos: list[str] = [x for x in args if "--" not in x]
+        kws: list[str] = [x.lstrip("--") for x in args if "--" in x]
 
         args = []
         for a, p in zip(pos, self._positional.values()):
@@ -124,13 +124,15 @@ class Command:
         for k, v in pars.items():
             default = None
             ptype = None
+            is_optional = False
             if v.default is not inspect.Parameter.empty:
                 default = v.default
+                is_optional = True
             if k in anns:
                 ptype = anns[k]
             par = Parameter(k, ptype, default)
 
-            if v.kind in (v.POSITIONAL_ONLY,):
+            if v.kind in (v.POSITIONAL_ONLY, v.POSITIONAL_OR_KEYWORD):
                 self._positional[k] = par
             else:
                 self._keyword[k] = par

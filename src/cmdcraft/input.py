@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Input class."""
 
-import shlex
 import enum
+import shlex
+
 
 class InputState(enum.Enum):
     TYPING_PARAMETER = enum.auto()
     TYPING_ARGUMENT = enum.auto()
     TYPING_STRING = enum.auto()
 
-class Input:
 
+class Input:
     def __init__(self, input: str) -> None:
         self._input = input
         self._tokens = []
@@ -24,9 +25,9 @@ class Input:
         return tks
 
     def process(self) -> None:
-        if self._input.endswith(' '):
+        if self._input.endswith(" "):
             self._state = InputState.TYPING_PARAMETER
-        elif self._input.endswith('='):
+        elif self._input.endswith("="):
             self._state = InputState.TYPING_ARGUMENT
         try:
             self._tokens = self.tokenize(self._input)
@@ -40,4 +41,3 @@ class Input:
     @property
     def state(self) -> InputState:
         return self._state
-

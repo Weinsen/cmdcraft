@@ -26,8 +26,9 @@ class Command:
 
         """
         self._cb: callable = cb
-        self._pars: dict[str, Parameter] = {}
+        self._pars: dict[str, Parameter] = {}  # Remove later on
         self._positional: dict[str, Parameter] = {}
+        self._keyword: dict[str, Parameter] = {}
         self._name: str = cb.__name__
         self._alias: str = alias if alias is not None else self.name
 
@@ -65,7 +66,7 @@ class Command:
 
     @property
     def parameters(self) -> dict[str, Parameter]:
-        """Return a dictionary of parameters.
+        """Return a dictionary of all parameters.
 
         Returns:
             dict[str, Parameter]: Parameters.
@@ -73,14 +74,25 @@ class Command:
         """
         return self._pars
 
-    def list_parameters(self) -> list[str]:
-        """Return a list of parameters.
+    @property
+    def positional_parameters(self) -> dict[str, Parameter]:
+        """Return a dictionary of positional parameters.
 
         Returns:
-            list[str]: List of parameters.
+            dict[str, Parameter]: Parameters.
 
         """
-        return list(self._pars)
+        return self._positional
+
+    @property
+    def keyword_parameters(self) -> dict[str, Parameter]:
+        """Return a dictionary of positional parameters.
+
+        Returns:
+            dict[str, Parameter]: Parameters.
+
+        """
+        return self._keyword
 
     def eval(self, *args) -> asyncio.Future:
         """Evaluate a call.
@@ -118,8 +130,10 @@ class Command:
                 ptype = anns[k]
             par = Parameter(k, ptype, default)
 
-            if v.kind in (v.POSITIONAL_ONLY, v.POSITIONAL_OR_KEYWORD):
+            if v.kind in (v.POSITIONAL_ONLY,):
                 self._positional[k] = par
+            else:
+                self._keyword[k] = par
             self._pars[k] = par
 
     def parameter(self, parameter: str) -> Parameter | None:

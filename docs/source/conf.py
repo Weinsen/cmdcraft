@@ -9,7 +9,7 @@
 project = "cmdcraft"
 copyright = "2024, A. M. Weinsen Jr"
 author = "A. M. Weinsen Jr"
-release = "0.0.3"
+release = "0.0.4"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

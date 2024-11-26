@@ -46,7 +46,7 @@ class CommandCompleter(NestedCompleter):
             Iterable[Completion]: List of Completions for current prompt.
 
         """
-        pars = self._command.list_parameters()
+        pars = self._command.keyword_parameters
         completer = FuzzyWordCompleter(list(pars))
         return completer.get_completions(document, complete_event)
 
@@ -90,7 +90,14 @@ class CommandCompleter(NestedCompleter):
         try:
             input = Input(document.text)
             input.process()
-            if input.state == InputState.TYPING_PARAMETER:
+            if len(input.tokens) < len(self._command._positional):
+                pars = list(self._command._positional.keys())
+                idx = pars[len(input.tokens)]
+                par = self._command._positional[idx]
+                completer = FuzzyWordCompleter(list(par.options))
+                return completer.get_completions(document, complete_event)
+            elif input.state == InputState.TYPING_PARAMETER:
+                # test
                 return self._get_pcompletions("", document, complete_event)
             elif input.state == InputState.TYPING_ARGUMENT:
                 word = input.tokens[-1]

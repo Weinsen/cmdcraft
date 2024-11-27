@@ -12,7 +12,7 @@ class EnumTest(Enum):
     B = 2
 
 
-async def test_input(s: str, a: EnumTest, /, prompt: str) -> None:
+async def test_input(s: str, a: EnumTest, prompt: str = 'a') -> None:
     print(f"The input is: {prompt}")
 
 def test() -> list[str]:

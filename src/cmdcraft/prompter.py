@@ -27,8 +27,6 @@ class Prompter(BasePrompter):
         """Process interpreter completer."""
         cmds = {}
         for name, cmd in self._commands.items():
-            if name == "help":
-                continue
             cmds[name] = CommandCompleter(cmd)
         return NestedCompleter(cmds)
 

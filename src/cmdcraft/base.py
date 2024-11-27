@@ -20,13 +20,22 @@ class BasePrompter(metaclass=ABCMeta):
     def __init__(self) -> None:
         """Command Set initializer."""
         self._commands: dict[str, Command] = {}
+        # Register default commands
         self.register_command(self.clear)
-        self.register_command(self.help)
         self.register_command(self.history)
         self.register_command(self.load)
         self.register_command(self.quit)
         self.register_command(self.save)
         self.register_command(self.wait)
+
+        # Register help command
+        help = self.register_command(self.help)
+
+        def get_funcs() -> list[str]:
+            return list(self._commands)
+
+        help.parameter("command").set_dynamic_options(get_funcs)
+
         self._history = []
         self._is_running: bool = False
         self._is_init: bool = False
@@ -77,11 +86,6 @@ class BasePrompter(metaclass=ABCMeta):
         """
         return self._commands
 
-    def show_commands(self) -> None:
-        """Show available commands."""
-        cmds = ", ".join(list(self._commands))
-        self.output(f"Available commands: {cmds}")
-
     async def interpret(self, cmdline: str) -> None:
         """Interpret user input.
 
@@ -93,30 +97,19 @@ class BasePrompter(metaclass=ABCMeta):
 
         """
         try:
-            # args = self.tokenize(cmdline)
-            # if len(args) < 1:
-            #     return
             input = Input(cmdline)
             input.process()
             if len(input.tokens) < 1:
                 return
             cmd = self._commands.get(input.tokens[0], None)
-            if input.tokens[0] == "help":
-                if len(input.tokens) > 1:
-                    cmd = self._commands.get(input.tokens[1], None)
-                await self.help(cmd)
-            elif cmd is None:
-                self.output(f"Invalid command `{input.tokens[0]}`!")
-                self.show_commands()
-            else:
-                await cmd.eval(*input.tokens[1:])
+            await cmd.eval(*input.tokens[1:])
         except TypeError as e:
             await self.help(cmd)
             self.output(e)
         except Exception as e:
             self.output(e)
 
-    async def help(self, command: str | None = None) -> None:
+    async def help(self, command: str = "help") -> None:
         """Show Cmdcraft interpreter help.
 
         The interpreter receives instructions from the standard input (stdin) to
@@ -124,7 +117,12 @@ class BasePrompter(metaclass=ABCMeta):
 
         For further help, type the command `help [command]`.
         """
-        self.output(cleandoc(command.__doc__))
+        cmd = self._commands.get(command, None)
+        if cmd:
+            self.output(cleandoc(cmd.__doc__))
+        else:
+            self.output(cleandoc(self.help.__doc__))
+        self.output("")
 
     async def clear(self) -> None:
         """Clear both command history and screen."""

@@ -124,10 +124,8 @@ class Command:
         for k, v in pars.items():
             default = None
             ptype = None
-            is_optional = False
             if v.default is not inspect.Parameter.empty:
                 default = v.default
-                is_optional = True
             if k in anns:
                 ptype = anns[k]
             par = Parameter(k, ptype, default)

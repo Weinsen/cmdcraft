@@ -1,6 +1,16 @@
 Changelog
 =========
 
+v0.0.6
+------
+
+- Handle args and kwargs
+- Configure workflow
+- Update config.py
+- Update documentation
+- Improve testing coverage
+- Fix positional suggestions
+
 v0.0.5
 ------
 

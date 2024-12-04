@@ -31,6 +31,8 @@ class Command:
         self._keyword: dict[str, Parameter] = {}
         self._name: str = cb.__name__
         self._alias: str = alias if alias is not None else self.name
+        self._has_args: bool = False
+        self._has_kwargs: bool = False
 
     @property
     def __doc__(self) -> str:
@@ -94,6 +96,16 @@ class Command:
         """
         return self._keyword
 
+    @property
+    def has_args(self) -> bool:
+        """Return if the command accepts variadic non-keyword arguments."""
+        return self._has_args
+
+    @property
+    def has_kwargs(self) -> bool:
+        """Return if the command accepts variadic keyword arguments."""
+        return self._has_kwargs
+
     def eval(self, *args) -> asyncio.Future:
         """Evaluate a call.
 
@@ -105,16 +117,22 @@ class Command:
         kws: list[str] = [x.lstrip("--") for x in args if "--" in x]
 
         args = []
+        var_args = []
         for a, p in zip(pos, self._positional.values()):
             args.append(p.cast(a))
+
+        if self.has_args:
+            var_args = pos[len(self._positional):]
 
         kwargs = {}
         for kw in kws:
             [par, value] = kw.split("=")
             if par in self._pars:
                 kwargs[par] = self._pars[par].cast(value)
+            elif self.has_kwargs:
+                kwargs[par] = value
 
-        return self._cb(*args, **kwargs)
+        return self._cb(*args, *var_args, **kwargs)
 
     def process(self) -> None:
         """Process the callable metadata."""
@@ -124,18 +142,20 @@ class Command:
         for k, v in pars.items():
             default = None
             ptype = None
-            is_optional = False
             if v.default is not inspect.Parameter.empty:
                 default = v.default
-                is_optional = True
             if k in anns:
                 ptype = anns[k]
             par = Parameter(k, ptype, default)
 
             if v.kind in (v.POSITIONAL_ONLY, v.POSITIONAL_OR_KEYWORD):
                 self._positional[k] = par
-            else:
+            elif v.kind == v.KEYWORD_ONLY:
                 self._keyword[k] = par
+            elif v.kind == v.VAR_POSITIONAL:
+                self._has_args = True
+            elif v.kind == v.VAR_KEYWORD:
+                self._has_kwargs = True
             self._pars[k] = par
 
     def parameter(self, parameter: str) -> Parameter | None:

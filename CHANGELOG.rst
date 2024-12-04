@@ -1,10 +1,45 @@
 Changelog
 =========
 
-v0.0.2
+v0.0.6
 ------
 
-Fixes:
+- Handle args and kwargs
+- Configure workflow
+- Update config.py
+- Update documentation
+- Improve testing coverage
+- Fix positional suggestions
+
+v0.0.5
+------
+
+- Handle positional parameters
+- Improve help method
+- Fix issue with empty inputs
+- Fix issue README.rst syntax
+- Clean code
+
+v0.0.4
+------
+
+- Change naming: `Method`` to `Command`
+- Change naming: `Interpreter`` to `Prompter`
+- Improve linting
+
+Fixed issues:
+******
+#2: Exception while typing quoted arguments
+
+v0.0.3
+------
+
+- Adopt ruff as linter
+- Improve documentation
+
+v0.0.2
+
+Fixed issues:
 ******
 #1: Input mishandling options
 

@@ -32,7 +32,27 @@ class CommandCompleter(NestedCompleter):
         super().__init__([], ignore_case)
         self._command = command
 
-    def _get_pcompletions(
+    def _get_par_completions(
+        self, input: Input, document: Document, complete_event: CompleteEvent
+    ) -> Iterable[Completion]:
+        """Get parameter completions.
+
+        Args:
+            input (Input): Prompt input.
+            document (Document): Current document object.
+            complete_event (CompleteEvent): Completion event.
+
+        Returns:
+            Iterable[Completion]: List of Completions for current prompt.
+
+        """
+        pars = list(self._command._positional.keys())
+        idx = pars[input.position]
+        par = self._command._positional[idx]
+        completer = FuzzyWordCompleter(list(par.options))
+        return completer.get_completions(document, complete_event)
+
+    def _get_opt_completions(
         self, _: str, document: Document, complete_event: CompleteEvent
     ) -> Iterable[Completion]:
         """Get parameter completions.
@@ -50,7 +70,7 @@ class CommandCompleter(NestedCompleter):
         completer = FuzzyWordCompleter(list(pars))
         return completer.get_completions(document, complete_event)
 
-    def _get_acompletions(
+    def _get_value_completions(
         self, prompt: str, _: Document, complete_event: CompleteEvent
     ) -> Iterable[Completion]:
         """Get argument completions.
@@ -64,7 +84,7 @@ class CommandCompleter(NestedCompleter):
             Iterable[Completion]: List of Completions for current prompt.
 
         """
-        (par, arg) = prompt.split("=")
+        (par, arg) = prompt.lstrip("--").split("=")
         if par not in self._command._pars:
             return ()
         vs = self._command._pars[par].options
@@ -90,17 +110,13 @@ class CommandCompleter(NestedCompleter):
         try:
             input = Input(document.text)
             input.process()
-            if len(input.tokens) < len(self._command._positional):
-                pars = list(self._command._positional.keys())
-                idx = pars[len(input.tokens)]
-                par = self._command._positional[idx]
-                completer = FuzzyWordCompleter(list(par.options))
-                return completer.get_completions(document, complete_event)
-            elif input.state == InputState.TYPING_PARAMETER:
-                return self._get_pcompletions("", document, complete_event)
-            elif input.state == InputState.TYPING_ARGUMENT:
+            if input.position < len(self._command._positional):
+                return self._get_par_completions(input, document, complete_event)
+            elif input.state in (InputState.TYPING_OPTION, InputState.TYPING_COMPLETE):
+                return self._get_opt_completions("", document, complete_event)
+            elif input.state == InputState.TYPING_VALUE:
                 word = input.tokens[-1]
-                return self._get_acompletions(word, document, complete_event)
+                return self._get_value_completions(word, document, complete_event)
             else:
                 return ()
         except ValueError:  # TODO: improve open quote handling

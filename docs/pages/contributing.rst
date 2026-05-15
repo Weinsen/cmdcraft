@@ -29,3 +29,9 @@ we ask to start the brief message with one of these tags:
 
 Also, if the commit is related to a specific tracked issue, please insert its number
 preceded by #.
+
+Local checks
+============
+
+Use ``./tools/lint.sh --changed`` to lint only the Python files changed on your branch,
+or ``./tools/lint.sh --all`` for a full-repository Ruff check plus formatting validation.

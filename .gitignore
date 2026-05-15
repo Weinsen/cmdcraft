@@ -1,10 +1,12 @@
 # Python
+.venv/
 *__pycache__*
 **/.pyc
 tmp/
-docs/build/
 *.egg
 *.egg-info
 dist
-build
+build/
+_build/
+docs/html/
 eggs

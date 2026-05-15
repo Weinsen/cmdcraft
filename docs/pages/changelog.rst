@@ -28,7 +28,7 @@ v0.0.4
 - Improve linting
 
 Fixed issues:
-******
+*************
 #2: Exception while typing quoted arguments
 
 v0.0.3
@@ -40,7 +40,7 @@ v0.0.3
 v0.0.2
 
 Fixed issues:
-******
+*************
 #1: Input mishandling options
 
 - Input handling

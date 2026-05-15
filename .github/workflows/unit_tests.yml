@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    if: github.event.pull_request.draft == false
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,23 +19,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+          cache: pip
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[dev]'
 
-      - name: Analysis
-        run: ./tools/analyse.sh
+      - name: Lint
+        run: ./tools/lint.sh --changed
 
       - name: Tests
         run: ./tools/test.sh
 
       - name: Validate README.rst
-        run: python -m readme_renderer README.rst
+        run: python -m readme_renderer.rst README.rst > /dev/null

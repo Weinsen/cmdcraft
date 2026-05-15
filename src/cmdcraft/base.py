@@ -1,4 +1,10 @@
-#!/usr/bin/env python3
+# *****************************************************************************
+# Copyright (c) 2024-2026, Antonio Mario Weinsen Junior
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+# *****************************************************************************
 """Base interpreter class."""
 
 import asyncio
@@ -102,6 +108,10 @@ class BasePrompter(metaclass=ABCMeta):
             if len(input.tokens) < 1:
                 return
             cmd = self._commands.get(input.tokens[0], None)
+            if cmd is None:
+                self.output(f"Unknown command: {input.tokens[0]}")
+                await self.help()
+                return
             await cmd.eval(*input.tokens[1:])
         except TypeError as e:
             await self.help(cmd)

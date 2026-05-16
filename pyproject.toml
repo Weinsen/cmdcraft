@@ -35,13 +35,17 @@ dev = [
     "ruff",
 ]
 docs = [
-    "furo",
-    "sphinx",
+    "sphinx>=6.0",
+    "sphinx-rtd-theme",
+    "sphinx-autodoc-typehints",
+    "sphinx-autobuild",
 ]
 
 [project.urls]
-Homepage = "https://github.com/weinsen/cmdcraft"
-Repository = "https://github.com/weinsen/cmdcraft"
+"Homepage" = "https://github.com/weinsen/cmdcraft"
+"Repository" = "https://github.com/weinsen/cmdcraft"
+"Bug Reports" = "https://github.com/weinsen/cmdcraft/issues"
+"Docs" = "https://cmdcraft.readthedocs.io/en/latest/?badge=latest"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cmdcraft"
-version = "0.0.7"
+version = "0.0.8"
 description = "Library for building interactive prompt-driven developer tools from Python callables"
 authors = [
     { name = "A. M. Weinsen Jr." }

@@ -3,7 +3,7 @@
 project = "cmdcraft"
 copyright = "2026, A. M. Weinsen Jr"
 author = "A. M. Weinsen Jr"
-release = "0.0.7"
+release = "0.0.8"
 
 extensions = [
     "sphinx.ext.autodoc",

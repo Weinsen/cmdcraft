@@ -8,6 +8,7 @@
 """Tests for BasePrompter."""
 
 import asyncio
+from enum import Enum
 
 from cmdcraft.base import BasePrompter
 
@@ -29,3 +30,21 @@ def test_interpret_unknown_command():
 
     assert prompt.outputs[0] == "Unknown command: missing"
     assert "Show Cmdcraft interpreter help." in prompt.outputs[1]
+
+
+def test_interpret_positional_enum_assignment_hint():
+    """Test a readable hint for mistaken named positional enum syntax."""
+
+    class EnumTest(Enum):
+        A = 1
+        B = 2
+
+    async def test_input(a: EnumTest) -> None:
+        return None
+
+    prompt = _DummyPrompter()
+    prompt.register_command(test_input)
+
+    asyncio.run(prompt.interpret("test_input a=A"))
+
+    assert prompt.outputs == ["Parameter 'a' is positional. Use 'A' instead of 'a=A'."]

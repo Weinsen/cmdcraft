@@ -119,6 +119,13 @@ class Command:
         args = []
         var_args = []
         for a, p in zip(pos, self._positional.values()):
+            if p.is_enum_type and "=" in a:
+                (name, value) = a.split("=", 1)
+                if name == p.name and value in p.options:
+                    raise ValueError(
+                        f"Parameter '{p.name}' is positional. "
+                        f"Use '{value}' instead of '{a}'."
+                    )
             args.append(p.cast(a))
 
         if self.has_args:

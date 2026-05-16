@@ -68,5 +68,11 @@ def test_parameter_enum():
     assert par.default == TestEnum.OPT_0
     assert par.cast("OPT_A") == TestEnum.OPT_A
 
-    with pytest.raises(Exception):
-        assert par.cast("OPT_Z")
+    with pytest.raises(ValueError) as excinfo:
+        par.cast("OPT_Z")
+
+    assert (
+        str(excinfo.value)
+        == "Invalid value for parameter 'options': 'OPT_Z'. "
+        "Expected one of: OPT_0, OPT_A, OPT_B."
+    )

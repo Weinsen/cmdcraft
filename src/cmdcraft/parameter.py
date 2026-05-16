@@ -54,6 +54,16 @@ class Parameter:
         return self._supports_runtime_cast() and issubclass(self._type, Enum)
 
     @property
+    def is_enum_type(self) -> bool:
+        """Return whether the parameter annotation is an enum type.
+
+        Returns:
+            bool: True if the annotation is an enum type, False otherwise.
+
+        """
+        return self._is_enum_type()
+
+    @property
     def name(self) -> str:
         """Return parameter name.
 
@@ -98,9 +108,23 @@ class Parameter:
 
         """
         if self._is_enum_type():
-            return self._type[value]
+            try:
+                return self._type[value]
+            except KeyError:
+                options = ", ".join(self.options)
+                raise ValueError(
+                    f"Invalid value for parameter '{self.name}': {value!r}. "
+                    f"Expected one of: {options}."
+                ) from None
         if self._supports_runtime_cast():
-            return self._type(value)
+            try:
+                return self._type(value)
+            except (TypeError, ValueError):
+                type_name = getattr(self._type, "__name__", str(self._type))
+                raise ValueError(
+                    f"Invalid value for parameter '{self.name}': {value!r}. "
+                    f"Expected {type_name}."
+                ) from None
         return value
 
     def set_dynamic_options(self, generator: callable) -> None:

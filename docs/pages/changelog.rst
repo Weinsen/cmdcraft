@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v0.0.7
+----------
+
+- Move packaging metadata into ``pyproject.toml`` and remove ``setup.py`` plus ``requirements.txt``.
+- Add shared tooling helpers and dedicated ``lint`` / ``test`` scripts that honor the repository virtual environment and base ref.
+- Expand GitHub Actions coverage to Python 3.13, release-candidate branches, editable installs, and draft PR handling.
+- Reorganize the Sphinx docs for Read the Docs, add API documentation pages, and document the updated contributor workflow.
+
 v0.0.6
 ------
 
@@ -28,7 +36,7 @@ v0.0.4
 - Improve linting
 
 Fixed issues:
-******
+*************
 #2: Exception while typing quoted arguments
 
 v0.0.3
@@ -40,7 +48,7 @@ v0.0.3
 v0.0.2
 
 Fixed issues:
-******
+*************
 #1: Input mishandling options
 
 - Input handling

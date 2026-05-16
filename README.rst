@@ -1,11 +1,14 @@
 cmdcraft
 ========
 
+.. image:: https://github.com/weinsen/cmdcraft/actions/workflows/unit_tests.yml/badge.svg?branch=master
+   :target: https://github.com/weinsen/cmdcraft/actions/workflows/unit_tests.yml
+
 ``cmdcraft`` is a library that aims to build fast and stable
-interative devtools. It that native Python metadata from objects to build prompt
+interactive devtools. It uses native Python metadata from objects to build prompt
 commands, so you don't have to manually configure input options.
 
-.. image:: docs/source/images/example.gif
+.. image:: docs/images/example.gif
 
 Features
 --------
@@ -18,7 +21,13 @@ Features
 Contributing
 ============
 
-Contributions are welcome! Please start by reading the `Contributing Guidelines <CONTRIBUING.rst>`_ file.
+Contributions are welcome! Please start by reading the `Contributing Guidelines <docs/pages/contributing.rst>`_ file.
+
+License
+=======
+
+This project is licensed under the BSD-style license found in the LICENSE file in the
+root directory of this source tree.
 
 Special thanks
 ==============

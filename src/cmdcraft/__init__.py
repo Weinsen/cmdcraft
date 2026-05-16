@@ -6,7 +6,7 @@ from __future__ import annotations
 from .base import BasePrompter
 from .prompter import Prompter
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 
 __all__ = [
     "BasePrompter",

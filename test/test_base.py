@@ -32,6 +32,29 @@ def test_interpret_unknown_command():
     assert "Show Cmdcraft interpreter help." in prompt.outputs[1]
 
 
+def test_request_shutdown_escalates_on_second_call():
+    """Test graceful then forced shutdown requests."""
+    prompt = _DummyPrompter()
+    prompt._is_running = True
+
+    prompt.request_shutdown()
+    assert prompt.shutdown_requested is True
+    assert prompt.is_running is False
+    assert prompt.outputs[-1] == (
+        "Graceful shutdown requested. Waiting for the current operation to "
+        "finish. Press Ctrl-C again to force exit."
+    )
+
+    try:
+        prompt.request_shutdown()
+    except SystemExit as exc:
+        assert exc.code == 130
+    else:
+        assert False, "Expected a forced shutdown to raise SystemExit"
+
+    assert prompt.outputs[-1] == "Forced shutdown requested."
+
+
 def test_interpret_positional_enum_assignment_hint():
     """Test a readable hint for mistaken named positional enum syntax."""
 

@@ -45,6 +45,7 @@ class BasePrompter(metaclass=ABCMeta):
         self._history = []
         self._is_running: bool = False
         self._is_init: bool = False
+        self._shutdown_requested: bool = False
 
     async def init(self) -> None:
         """Init the interpreter object."""
@@ -58,6 +59,7 @@ class BasePrompter(metaclass=ABCMeta):
         """Run Prompter main loop."""
         if not self._is_init:
             await self.init()
+        self._shutdown_requested = False
 
     @property
     def is_running(self) -> bool:
@@ -68,6 +70,24 @@ class BasePrompter(metaclass=ABCMeta):
 
         """
         return self._is_running
+
+    @property
+    def shutdown_requested(self) -> bool:
+        """Return whether a graceful shutdown was requested."""
+        return self._shutdown_requested
+
+    def request_shutdown(self) -> None:
+        """Request a graceful shutdown."""
+        if self._shutdown_requested:
+            self.output("Forced shutdown requested.")
+            raise SystemExit(130)
+
+        self._shutdown_requested = True
+        self._is_running = False
+        self.output(
+            "Graceful shutdown requested. Waiting for the current operation "
+            "to finish. Press Ctrl-C again to force exit."
+        )
 
     def register_command(self, command: callable, alias: str | None = None) -> Command:
         """Register a command into the interpreter.

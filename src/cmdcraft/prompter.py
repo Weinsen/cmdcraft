@@ -36,8 +36,14 @@ class Prompter(BasePrompter):
     def _has_active_prompt(self) -> bool:
         """Return whether a prompt_toolkit application is running."""
         app = self._session.app
+        if app is None:
+            return False
         future = getattr(app, "future", None)
-        return app.is_running and future is not None and not future.done()
+        return (
+            getattr(app, "is_running", False)
+            and future is not None
+            and not future.done()
+        )
 
     def _exit_active_prompt(self) -> None:
         """Exit the active prompt without raising a traceback."""

@@ -129,7 +129,7 @@ class Command:
             args.append(p.cast(a))
 
         if self.has_args:
-            var_args = pos[len(self._positional):]
+            var_args = pos[len(self._positional) :]
 
         kwargs = {}
         for kw in kws:

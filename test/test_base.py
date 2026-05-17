@@ -71,3 +71,20 @@ def test_interpret_positional_enum_assignment_hint():
     asyncio.run(prompt.interpret("test_input a=A"))
 
     assert prompt.outputs == ["Parameter 'a' is positional. Use 'A' instead of 'a=A'."]
+
+
+def test_interpret_type_error_shows_command_help():
+    """Test TypeError handling shows the failing command help text."""
+
+    async def test_input(required: str) -> None:
+        """Specific command help."""
+        return None
+
+    prompt = _DummyPrompter()
+    prompt.register_command(test_input)
+
+    asyncio.run(prompt.interpret("test_input"))
+
+    assert prompt.outputs[0] == "Specific command help."
+    assert prompt.outputs[1] == ""
+    assert "missing 1 required positional argument" in prompt.outputs[2]

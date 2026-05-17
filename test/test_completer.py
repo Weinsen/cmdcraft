@@ -1,4 +1,11 @@
-#!/usr/bin/env python3
+# *****************************************************************************
+# Copyright (c) 2024-2026, Antonio Mario Weinsen Junior
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+# *****************************************************************************
+"""Tests for Completer."""
 
 from enum import Enum
 
@@ -10,6 +17,8 @@ from cmdcraft.completer import CommandCompleter
 
 
 class EnumTest(Enum):
+    """Test enum for completion."""
+
     A = 1
     B = 2
 

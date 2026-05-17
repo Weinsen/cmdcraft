@@ -51,8 +51,13 @@ def test_parameter_int():
     assert par.default == 0
     assert par.cast("1001") == 1001
 
-    with pytest.raises(Exception):
-        assert par.cast("ARG")
+    with pytest.raises(ValueError) as excinfo:
+        par.cast("ARG")
+
+    assert (
+        str(excinfo.value)
+        == "Invalid value for parameter 'options': 'ARG'. Expected int."
+    )
 
 
 def test_parameter_enum():
@@ -72,7 +77,6 @@ def test_parameter_enum():
         par.cast("OPT_Z")
 
     assert (
-        str(excinfo.value)
-        == "Invalid value for parameter 'options': 'OPT_Z'. "
+        str(excinfo.value) == "Invalid value for parameter 'options': 'OPT_Z'. "
         "Expected one of: OPT_0, OPT_A, OPT_B."
     )

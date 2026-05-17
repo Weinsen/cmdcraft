@@ -79,6 +79,18 @@ def test_sigint_graceful_shutdown_exits_active_prompt():
     assert app.exit_calls == [{"result": "", "exception": None, "style": ""}]
 
 
+def test_sigint_graceful_shutdown_without_active_prompt():
+    """Test Ctrl-C still shuts down cleanly when no prompt app is active."""
+    prompt = _DummyPrompter()
+    prompt._session = _FakeSession(None)
+    prompt._is_running = True
+
+    prompt._handle_sigint(2, None)
+
+    assert prompt.shutdown_requested is True
+    assert prompt.is_running is False
+
+
 def test_sigint_force_shutdown_raises_on_second_press():
     """Test second Ctrl-C forces the loop to exit immediately."""
     prompt = _DummyPrompter()

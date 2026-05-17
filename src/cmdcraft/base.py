@@ -134,7 +134,7 @@ class BasePrompter(metaclass=ABCMeta):
                 return
             await cmd.eval(*input.tokens[1:])
         except TypeError as e:
-            await self.help(cmd)
+            await self.help(input.tokens[0])
             self.output(e)
         except Exception as e:
             self.output(e)

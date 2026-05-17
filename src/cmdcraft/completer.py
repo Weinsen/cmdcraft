@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from prompt_toolkit.completion import (
     CompleteEvent,

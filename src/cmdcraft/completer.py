@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from prompt_toolkit.completion import (
     CompleteEvent,
@@ -84,10 +84,10 @@ class CommandCompleter(NestedCompleter):
             Iterable[Completion]: List of Completions for current prompt.
 
         """
-        (par, arg) = prompt.lstrip("--").split("=")
-        if par not in self._command._pars:
+        (par, arg) = prompt.lstrip("--").split("=", 1)
+        if par not in self._command.keyword_parameters:
             return ()
-        vs = self._command._pars[par].options
+        vs = self._command.keyword_parameters[par].options
         if vs is None:
             return ()
         completer = FuzzyWordCompleter(vs)

@@ -1,4 +1,10 @@
-#!/usr/bin/env python3
+# *****************************************************************************
+# Copyright (c) 2024-2026, Antonio Mario Weinsen Junior
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+# *****************************************************************************
 """Base interpreter class."""
 
 import asyncio
@@ -39,6 +45,7 @@ class BasePrompter(metaclass=ABCMeta):
         self._history = []
         self._is_running: bool = False
         self._is_init: bool = False
+        self._shutdown_requested: bool = False
 
     async def init(self) -> None:
         """Init the interpreter object."""
@@ -52,6 +59,7 @@ class BasePrompter(metaclass=ABCMeta):
         """Run Prompter main loop."""
         if not self._is_init:
             await self.init()
+        self._shutdown_requested = False
 
     @property
     def is_running(self) -> bool:
@@ -62,6 +70,24 @@ class BasePrompter(metaclass=ABCMeta):
 
         """
         return self._is_running
+
+    @property
+    def shutdown_requested(self) -> bool:
+        """Return whether a graceful shutdown was requested."""
+        return self._shutdown_requested
+
+    def request_shutdown(self) -> None:
+        """Request a graceful shutdown."""
+        if self._shutdown_requested:
+            self.output("Forced shutdown requested.")
+            raise SystemExit(130)
+
+        self._shutdown_requested = True
+        self._is_running = False
+        self.output(
+            "Graceful shutdown requested. Waiting for the current operation "
+            "to finish. Press Ctrl-C again to force exit."
+        )
 
     def register_command(self, command: callable, alias: str | None = None) -> Command:
         """Register a command into the interpreter.
@@ -102,9 +128,13 @@ class BasePrompter(metaclass=ABCMeta):
             if len(input.tokens) < 1:
                 return
             cmd = self._commands.get(input.tokens[0], None)
+            if cmd is None:
+                self.output(f"Unknown command: {input.tokens[0]}")
+                await self.help()
+                return
             await cmd.eval(*input.tokens[1:])
         except TypeError as e:
-            await self.help(cmd)
+            await self.help(input.tokens[0])
             self.output(e)
         except Exception as e:
             self.output(e)

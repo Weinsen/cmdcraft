@@ -29,7 +29,7 @@ def split_command_path(path: str) -> list[str]:
     """
     parts = path.split()
     if not parts:
-        raise ValueError('Command paths cannot be empty.')
+        raise ValueError("Command paths cannot be empty.")
     return parts
 
 
@@ -118,7 +118,7 @@ class CommandGroup:
             str: Group documentation text.
 
         """
-        return self._doc or ''
+        return self._doc or ""
 
     @property
     def commands(self) -> dict[str, Command | CommandGroup]:
@@ -171,7 +171,7 @@ class CommandGroup:
         parent = self.register_group(path[0])
         return parent.register_group(
             _leaf_group_name(name, alias),
-            alias=' '.join(path[1:]),
+            alias=" ".join(path[1:]),
             doc=doc,
         )
 
@@ -206,7 +206,7 @@ class CommandGroup:
             return cmd
 
         group = self.register_group(path[0])
-        return group.register_command(command, alias=' '.join(path[1:]))
+        return group.register_command(command, alias=" ".join(path[1:]))
 
     def resolve(
         self,
@@ -261,10 +261,10 @@ class CommandGroup:
             current = (*prefix, name)
             if isinstance(node, CommandGroup):
                 if include_groups:
-                    paths.append(' '.join(current))
+                    paths.append(" ".join(current))
                 paths.extend(node.command_paths(current, include_groups=include_groups))
                 continue
 
-            paths.append(' '.join(current))
+            paths.append(" ".join(current))
 
         return paths

@@ -27,7 +27,7 @@ class BasePrompter(metaclass=ABCMeta):
 
     def __init__(self) -> None:
         """Command Set initializer."""
-        self._root_group = CommandGroup('root')
+        self._root_group = CommandGroup("root")
         self._commands: dict[str, Command | CommandGroup] = self._root_group.commands
         # Register default commands
         self.register_command(self.clear)
@@ -43,7 +43,7 @@ class BasePrompter(metaclass=ABCMeta):
         def get_funcs() -> list[str]:
             return self._root_group.command_paths(include_groups=True)
 
-        help_command.parameter('command').set_dynamic_options(get_funcs)
+        help_command.parameter("command").set_dynamic_options(get_funcs)
 
         self._history: list[str] = []
         self._is_running: bool = False
@@ -152,13 +152,13 @@ class BasePrompter(metaclass=ABCMeta):
         if group.__doc__:
             lines.append(cleandoc(group.__doc__))
         else:
-            lines.append(f'Command group: {group_path}')
+            lines.append(f"Command group: {group_path}")
 
-        lines.append('')
-        lines.append('Available commands:')
+        lines.append("")
+        lines.append("Available commands:")
         for name in group.commands:
-            lines.append(f'- {name}')
-        return '\n'.join(lines)
+            lines.append(f"- {name}")
+        return "\n".join(lines)
 
     async def interpret(self, cmdline: str) -> None:
         """Interpret user input.
@@ -173,7 +173,7 @@ class BasePrompter(metaclass=ABCMeta):
             None: This coroutine does not return a value.
 
         """
-        command_path = 'help'
+        command_path = "help"
         try:
             prompt_input = Input(cmdline)
             prompt_input.process()
@@ -182,23 +182,23 @@ class BasePrompter(metaclass=ABCMeta):
             command_path = prompt_input.tokens[0]
             cmd, consumed = self._resolve_command_path(prompt_input.tokens)
             if cmd is None:
-                self.output(f'Unknown command: {prompt_input.tokens[0]}')
+                self.output(f"Unknown command: {prompt_input.tokens[0]}")
                 await self.help()
                 return
 
-            command_path = ' '.join(prompt_input.tokens[:consumed])
+            command_path = " ".join(prompt_input.tokens[:consumed])
             if isinstance(cmd, CommandGroup):
                 if consumed == len(prompt_input.tokens):
                     await self.help(command_path)
                 else:
-                    unknown = ' '.join(prompt_input.tokens[: consumed + 1])
-                    self.output(f'Unknown command: {unknown}')
+                    unknown = " ".join(prompt_input.tokens[: consumed + 1])
+                    self.output(f"Unknown command: {unknown}")
                     await self.help(command_path)
                 return
 
             args = prompt_input.tokens[consumed:]
-            if cmd.alias == 'help' and consumed == 1 and len(args) > 1:
-                args = [' '.join(args)]
+            if cmd.alias == "help" and consumed == 1 and len(args) > 1:
+                args = [" ".join(args)]
 
             await cmd.eval(*args)
         except TypeError as e:
@@ -207,7 +207,7 @@ class BasePrompter(metaclass=ABCMeta):
         except Exception as e:
             self.output(e)
 
-    async def help(self, command: str = 'help') -> None:
+    async def help(self, command: str = "help") -> None:
         """Show Cmdcraft interpreter help.
 
         The interpreter receives instructions from the standard input (stdin) to
@@ -223,11 +223,11 @@ class BasePrompter(metaclass=ABCMeta):
             None: This coroutine does not return a value.
 
         """
-        help_text = cleandoc(self.help.__doc__ or '').split('\n\nArgs:\n', 1)[0]
-        tokens = split_command_path(command) if command.strip() else ['help']
-        if tokens == ['help']:
+        help_text = cleandoc(self.help.__doc__ or "").split("\n\nArgs:\n", 1)[0]
+        tokens = split_command_path(command) if command.strip() else ["help"]
+        if tokens == ["help"]:
             self.output(help_text)
-            self.output('')
+            self.output("")
             return
 
         cmd, consumed = self._resolve_command_path(tokens)
@@ -237,7 +237,7 @@ class BasePrompter(metaclass=ABCMeta):
             self.output(cleandoc(cmd.__doc__))
         else:
             self.output(help_text)
-        self.output('')
+        self.output("")
 
     async def clear(self) -> None:
         """Clear both command history and screen."""

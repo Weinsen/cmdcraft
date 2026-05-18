@@ -160,9 +160,7 @@ def test_completer_supports_grouped_commands():
     ]
     nested = [
         completion.text
-        for completion in completer.get_completions(
-            Document("motor "), CompleteEvent()
-        )
+        for completion in completer.get_completions(Document("motor "), CompleteEvent())
     ]
 
     assert root == ["motor"]

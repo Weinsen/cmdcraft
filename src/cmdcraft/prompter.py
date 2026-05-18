@@ -71,9 +71,9 @@ class Prompter(BasePrompter):
         app = self._session.app
         if app is None:
             return False
-        future = getattr(app, 'future', None)
+        future = getattr(app, "future", None)
         return (
-            getattr(app, 'is_running', False)
+            getattr(app, "is_running", False)
             and future is not None
             and not future.done()
         )
@@ -81,7 +81,7 @@ class Prompter(BasePrompter):
     def _exit_active_prompt(self) -> None:
         """Exit the active prompt without raising a traceback."""
         if self._has_active_prompt():
-            self._session.app.exit(result='')
+            self._session.app.exit(result="")
 
     def _handle_sigint(self, _: int, __) -> None:
         """Handle Ctrl-C with graceful-then-force semantics."""
@@ -108,11 +108,11 @@ class Prompter(BasePrompter):
         signal.signal(signal.SIGINT, self._handle_sigint)
 
         try:
-            await self.interpret('help')
+            await self.interpret("help")
             while self.is_running:
                 try:
                     cmdline = await self._session.prompt_async(
-                        '> ',
+                        "> ",
                         completer=self.completer(),
                         handle_sigint=False,
                     )

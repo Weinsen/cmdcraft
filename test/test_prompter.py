@@ -10,6 +10,8 @@
 import asyncio
 
 import pytest
+from prompt_toolkit.completion import CompleteEvent
+from prompt_toolkit.document import Document
 
 from cmdcraft.prompter import Prompter
 
@@ -140,3 +142,28 @@ def test_run_handles_direct_prompt_keyboardinterrupt_gracefully():
         )
 
     asyncio.run(scenario())
+
+
+def test_completer_supports_grouped_commands():
+    """Test prompt completion for grouped command paths."""
+
+    async def motor_start() -> None:
+        return None
+
+    prompt = _DummyPrompter()
+    prompt.register_command(motor_start, alias="motor start")
+    completer = prompt.completer()
+
+    root = [
+        completion.text
+        for completion in completer.get_completions(Document("mo"), CompleteEvent())
+    ]
+    nested = [
+        completion.text
+        for completion in completer.get_completions(
+            Document("motor "), CompleteEvent()
+        )
+    ]
+
+    assert root == ["motor"]
+    assert nested == ["start"]

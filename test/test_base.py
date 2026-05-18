@@ -10,7 +10,10 @@
 import asyncio
 from enum import Enum
 
+import pytest
+
 from cmdcraft.base import BasePrompter
+from cmdcraft.group import CommandGroup
 
 
 class _DummyPrompter(BasePrompter):
@@ -88,3 +91,146 @@ def test_interpret_type_error_shows_command_help():
     assert prompt.outputs[0] == "Specific command help."
     assert prompt.outputs[1] == ""
     assert "missing 1 required positional argument" in prompt.outputs[2]
+
+
+def test_interpret_grouped_command_alias_path():
+    """Test grouped command aliases resolve as command paths."""
+
+    async def motor_start() -> None:
+        prompt.output("motor started")
+
+    prompt = _DummyPrompter()
+    prompt.register_command(motor_start, alias="motor start")
+
+    asyncio.run(prompt.interpret("motor start"))
+
+    assert prompt.outputs == ["motor started"]
+
+
+def test_interpret_nested_registered_groups():
+    """Test nested command groups resolve commands."""
+
+    async def start() -> None:
+        prompt.output("axis started")
+
+    prompt = _DummyPrompter()
+    axis = prompt.register_group("motor axis")
+    axis.register_command(start)
+
+    asyncio.run(prompt.interpret("motor axis start"))
+
+    assert prompt.outputs == ["axis started"]
+
+
+def test_grouped_command_type_error_shows_nested_command_help():
+    """Test grouped command failures show the nested command help."""
+
+    async def motor_start(speed: str) -> None:
+        """Motor start help."""
+        return None
+
+    prompt = _DummyPrompter()
+    prompt.register_command(motor_start, alias="motor start")
+
+    asyncio.run(prompt.interpret("motor start"))
+
+    assert prompt.outputs[0] == "Motor start help."
+    assert prompt.outputs[1] == ""
+    assert "missing 1 required positional argument" in prompt.outputs[2]
+
+
+def test_help_accepts_unquoted_grouped_command_path():
+    """Test help accepts grouped command paths without quoting."""
+
+    async def motor_start() -> None:
+        """Motor start help."""
+        return None
+
+    prompt = _DummyPrompter()
+    prompt.register_command(motor_start, alias="motor start")
+
+    asyncio.run(prompt.interpret("help motor start"))
+
+    assert prompt.outputs == ["Motor start help.", ""]
+
+
+def test_register_group_path_uses_leaf_group_name():
+    """Test grouped paths register the leaf group at the leaf level."""
+    prompt = _DummyPrompter()
+
+    axis = prompt.register_group("motor axis")
+    motor = prompt.commands["motor"]
+
+    assert isinstance(motor, CommandGroup)
+    assert axis.name == "axis"
+    assert axis.alias == "axis"
+    assert motor.commands["axis"] is axis
+
+
+def test_register_command_path_uses_leaf_command_alias():
+    """Test grouped command paths register the command at the leaf level."""
+
+    async def command_input() -> None:
+        return None
+
+    prompt = _DummyPrompter()
+    command = prompt.register_command(command_input, alias="motor axis home")
+    motor = prompt.commands["motor"]
+    axis = motor.commands["axis"]
+
+    assert isinstance(motor, CommandGroup)
+    assert isinstance(axis, CommandGroup)
+    assert command.alias == "home"
+    assert axis.commands["home"] is command
+
+
+def test_register_group_paths_merge_same_parent_group():
+    """Test sibling group paths reuse the same parent group."""
+    prompt = _DummyPrompter()
+
+    axis = prompt.register_group("motor axis")
+    sensor = prompt.register_group("motor sensor")
+    motor = prompt.commands["motor"]
+
+    assert isinstance(motor, CommandGroup)
+    assert motor.commands["axis"] is axis
+    assert motor.commands["sensor"] is sensor
+
+
+def test_register_command_raises_for_duplicate_command_name():
+    """Test duplicate command registrations raise an exception."""
+
+    async def start() -> None:
+        return None
+
+    prompt = _DummyPrompter()
+    prompt.register_command(start, alias="motor start")
+
+    with pytest.raises(ValueError, match="already registered"):
+        prompt.register_command(start, alias="motor start")
+
+
+def test_register_command_raises_for_existing_group_name():
+    """Test command registrations cannot replace existing groups."""
+
+    async def axis() -> None:
+        return None
+
+    prompt = _DummyPrompter()
+    prompt.register_group("motor axis")
+
+    with pytest.raises(ValueError, match="already registered"):
+        prompt.register_command(axis, alias="motor axis")
+
+
+def test_register_group_raises_for_existing_command_name():
+    """Test group registrations cannot replace existing commands."""
+
+    async def axis() -> None:
+        return None
+
+    prompt = _DummyPrompter()
+    prompt.register_command(axis, alias="motor axis")
+
+    with pytest.raises(ValueError, match="already registered"):
+        prompt.register_group("motor axis")

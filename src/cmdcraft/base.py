@@ -10,9 +10,11 @@
 import asyncio
 import os
 from abc import ABCMeta, abstractmethod
+from collections.abc import Callable
 from inspect import cleandoc
 
 from .command import Command
+from .group import CommandGroup, split_command_path
 from .input import Input
 
 
@@ -25,7 +27,8 @@ class BasePrompter(metaclass=ABCMeta):
 
     def __init__(self) -> None:
         """Command Set initializer."""
-        self._commands: dict[str, Command] = {}
+        self._root_group = CommandGroup("root")
+        self._commands: dict[str, Command | CommandGroup] = self._root_group.commands
         # Register default commands
         self.register_command(self.clear)
         self.register_command(self.history)
@@ -35,14 +38,14 @@ class BasePrompter(metaclass=ABCMeta):
         self.register_command(self.wait)
 
         # Register help command
-        help = self.register_command(self.help)
+        help_command = self.register_command(self.help)
 
         def get_funcs() -> list[str]:
-            return list(self._commands)
+            return self._root_group.command_paths(include_groups=True)
 
-        help.parameter("command").set_dynamic_options(get_funcs)
+        help_command.parameter("command").set_dynamic_options(get_funcs)
 
-        self._history = []
+        self._history: list[str] = []
         self._is_running: bool = False
         self._is_init: bool = False
         self._shutdown_requested: bool = False
@@ -89,28 +92,73 @@ class BasePrompter(metaclass=ABCMeta):
             "to finish. Press Ctrl-C again to force exit."
         )
 
-    def register_command(self, command: callable, alias: str | None = None) -> Command:
+    def register_command(
+        self,
+        command: Callable[..., object],
+        alias: str | None = None,
+    ) -> Command:
         """Register a command into the interpreter.
 
         Args:
-            command (callable): Callable.
+            command (Callable[..., object]): Callable.
             alias (str | None, optional): Command alias. Defaults to None.
 
-        """
-        m = Command(command, alias)
-        self._commands[m.alias] = m
-        m.process()
-        return m
+        Returns:
+            Command: Registered command wrapper.
 
-    @property
-    def commands(self) -> dict:
-        """Return the available commands.
+        """
+        return self._root_group.register_command(command, alias)
+
+    def register_group(
+        self, name: str, alias: str | None = None, doc: str | None = None
+    ) -> CommandGroup:
+        """Register a command group into the interpreter.
+
+        Args:
+            name (str): Group name.
+            alias (str | None, optional): Group alias or path. Defaults to None.
+            doc (str | None, optional): Group documentation. Defaults to None.
 
         Returns:
-            dict: Commands dictionary.
+            CommandGroup: Registered command group.
+
+        """
+        return self._root_group.register_group(name, alias=alias, doc=doc)
+
+    @property
+    def commands(self) -> dict[str, Command | CommandGroup]:
+        """Return the available top-level commands and groups.
+
+        Returns:
+            dict[str, Command | CommandGroup]: Top-level command and group
+                dictionary.
 
         """
         return self._commands
+
+    def _resolve_command_path(
+        self, tokens: list[str]
+    ) -> tuple[Command | CommandGroup | None, int]:
+        """Resolve a command path from the current registry."""
+        return self._root_group.resolve(tokens)
+
+    def _command_paths(self, include_groups: bool = False) -> list[str]:
+        """Return all registered command paths."""
+        return self._root_group.command_paths(include_groups=include_groups)
+
+    def _format_group_help(self, group_path: str, group: CommandGroup) -> str:
+        """Build help text for a command group."""
+        lines = []
+        if group.__doc__:
+            lines.append(cleandoc(group.__doc__))
+        else:
+            lines.append(f"Command group: {group_path}")
+
+        lines.append("")
+        lines.append("Available commands:")
+        for name in group.commands:
+            lines.append(f"- {name}")
+        return "\n".join(lines)
 
     async def interpret(self, cmdline: str) -> None:
         """Interpret user input.
@@ -121,20 +169,40 @@ class BasePrompter(metaclass=ABCMeta):
         Args:
             cmdline (str): Input command as single string line.
 
+        Returns:
+            None: This coroutine does not return a value.
+
         """
+        command_path = "help"
         try:
-            input = Input(cmdline)
-            input.process()
-            if len(input.tokens) < 1:
+            prompt_input = Input(cmdline)
+            prompt_input.process()
+            if len(prompt_input.tokens) < 1:
                 return
-            cmd = self._commands.get(input.tokens[0], None)
+            command_path = prompt_input.tokens[0]
+            cmd, consumed = self._resolve_command_path(prompt_input.tokens)
             if cmd is None:
-                self.output(f"Unknown command: {input.tokens[0]}")
+                self.output(f"Unknown command: {prompt_input.tokens[0]}")
                 await self.help()
                 return
-            await cmd.eval(*input.tokens[1:])
+
+            command_path = " ".join(prompt_input.tokens[:consumed])
+            if isinstance(cmd, CommandGroup):
+                if consumed == len(prompt_input.tokens):
+                    await self.help(command_path)
+                else:
+                    unknown = " ".join(prompt_input.tokens[: consumed + 1])
+                    self.output(f"Unknown command: {unknown}")
+                    await self.help(command_path)
+                return
+
+            args = prompt_input.tokens[consumed:]
+            if cmd.alias == "help" and consumed == 1 and len(args) > 1:
+                args = [" ".join(args)]
+
+            await cmd.eval(*args)
         except TypeError as e:
-            await self.help(input.tokens[0])
+            await self.help(command_path)
             self.output(e)
         except Exception as e:
             self.output(e)
@@ -145,13 +213,30 @@ class BasePrompter(metaclass=ABCMeta):
         The interpreter receives instructions from the standard input (stdin) to
         dynamically execute operations on running services.
 
-        For further help, type the command `help [command]`.
+        For further help, type the command `help [command [subcommand]]`.
+
+        Args:
+            command (str, optional): Command path to describe. Defaults to
+                "help".
+
+        Returns:
+            None: This coroutine does not return a value.
+
         """
-        cmd = self._commands.get(command, None)
-        if cmd:
+        help_text = cleandoc(self.help.__doc__ or "").split("\n\nArgs:\n", 1)[0]
+        tokens = split_command_path(command) if command.strip() else ["help"]
+        if tokens == ["help"]:
+            self.output(help_text)
+            self.output("")
+            return
+
+        cmd, consumed = self._resolve_command_path(tokens)
+        if isinstance(cmd, CommandGroup) and consumed == len(tokens):
+            self.output(self._format_group_help(command, cmd))
+        elif isinstance(cmd, Command):
             self.output(cleandoc(cmd.__doc__))
         else:
-            self.output(cleandoc(self.help.__doc__))
+            self.output(help_text)
         self.output("")
 
     async def clear(self) -> None:

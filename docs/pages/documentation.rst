@@ -18,3 +18,9 @@ Command
 
 .. automodule:: cmdcraft.command
     :members:
+
+CommandGroup
+------------
+
+.. automodule:: cmdcraft.group
+    :members:

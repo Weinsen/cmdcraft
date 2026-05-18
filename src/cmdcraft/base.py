@@ -223,14 +223,20 @@ class BasePrompter(metaclass=ABCMeta):
             None: This coroutine does not return a value.
 
         """
+        help_text = cleandoc(self.help.__doc__ or '').split('\n\nArgs:\n', 1)[0]
         tokens = split_command_path(command) if command.strip() else ['help']
+        if tokens == ['help']:
+            self.output(help_text)
+            self.output('')
+            return
+
         cmd, consumed = self._resolve_command_path(tokens)
         if isinstance(cmd, CommandGroup) and consumed == len(tokens):
             self.output(self._format_group_help(command, cmd))
         elif isinstance(cmd, Command):
             self.output(cleandoc(cmd.__doc__))
         else:
-            self.output(cleandoc(self.help.__doc__))
+            self.output(help_text)
         self.output('')
 
     async def clear(self) -> None:

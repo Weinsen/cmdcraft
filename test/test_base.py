@@ -154,6 +154,18 @@ def test_help_accepts_unquoted_grouped_command_path():
     assert prompt.outputs == ["Motor start help.", ""]
 
 
+def test_help_command_hides_api_doc_sections():
+    """Test interpreter help does not expose API doc sections."""
+    prompt = _DummyPrompter()
+
+    asyncio.run(prompt.interpret("help"))
+
+    assert prompt.outputs[0].startswith("Show Cmdcraft interpreter help.")
+    assert "Args:" not in prompt.outputs[0]
+    assert "Returns:" not in prompt.outputs[0]
+    assert prompt.outputs[1] == ""
+
+
 def test_register_group_path_uses_leaf_group_name():
     """Test grouped paths register the leaf group at the leaf level."""
     prompt = _DummyPrompter()

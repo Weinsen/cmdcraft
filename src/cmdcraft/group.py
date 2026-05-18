@@ -258,7 +258,7 @@ class CommandGroup:
         """
         paths: list[str] = []
         for name, node in self._commands.items():
-            current = prefix + (name,)
+            current = (*prefix, name)
             if isinstance(node, CommandGroup):
                 if include_groups:
                     paths.append(' '.join(current))

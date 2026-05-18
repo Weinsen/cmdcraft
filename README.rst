@@ -15,6 +15,7 @@ Features
 
 - Asynchronous and parallel tasks using asyncio
 - Easy function to command interface
+- Nested command groups for shorter, semantic command paths
 - Out of box functionality
 - Intuitive usability
 
